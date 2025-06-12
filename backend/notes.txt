@@ -1,0 +1,9 @@
+- Add comments
+- Add README.md
+- Deploy
+
+- Next features:
+  - Add files
+  - Maybe, insert download link => add file to data => Embedding
+  - Register, Login
+  - Faster technique?

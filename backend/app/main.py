@@ -34,5 +34,12 @@ def answer_endpoint(question: str = Query(...)):
     answer, chunks = get_answer(question)
     return {
         "answer": answer,
-        "sources": [{"doc_id": c.doc_id, "chunk_id": c.chunk_id, "content": c.content} for c in chunks]
+        "sources": [
+            {
+                "doc_id": c.doc_id,
+                "chunk_id": c.chunk_id,
+                "content": c.content,
+                "filename": c.filename
+            } for c in chunks
+        ]
     }

@@ -5,23 +5,18 @@ from .preprocess import load_documents
 from .utils import get_embedding
 
 def generate_and_save_embeddings():
-    """
-    Load preprocessed docs, insert documents, chunk them, get embeddings, 
-    and save embeddings to PostgreSQL.
-    """
+    docs = load_documents()  # List of (filename, cleaned_text)
 
-    docs = load_documents()
-
-    with engine.begin() as conn:  # Use begin() for transactional commit
-        for idx, doc in enumerate(docs):
-            # Insert document first, with filename or some identifier (replace with your actual filename or doc metadata)
+    with engine.begin() as conn:
+        for idx, (filename, doc) in enumerate(docs):
+            # Insert document with real filename
             result = conn.execute(
                 text("INSERT INTO documents (filename) VALUES (:filename) RETURNING id"),
-                {"filename": f"doc_{idx + 1}"}
+                {"filename": filename}
             )
-            doc_id = result.scalar_one()  # Get the generated document ID
+            doc_id = result.scalar_one()
             
-            tokens = doc.split()  # Already tokenized Japanese text
+            tokens = doc.split()
             chunks = chunk_text(tokens)
 
             for chunk_idx, chunk in enumerate(chunks):
@@ -40,3 +35,4 @@ def generate_and_save_embeddings():
                 )
 
     print("✅ Saved embeddings to PostgreSQL with pgvector.")
+

@@ -24,7 +24,7 @@ def get_answer(question: str):
     prompt = build_prompt(chunks, question)
 
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",  # or "gpt-4o-mini" or "gpt-4o"
+        model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "あなたは有能なAIアシスタントです。"},
             {"role": "user", "content": prompt},
