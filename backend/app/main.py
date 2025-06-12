@@ -1,8 +1,9 @@
 from fastapi import FastAPI, Query
 from fastapi.middleware.cors import CORSMiddleware
 from .embeddings import generate_and_save_embeddings
-from .search import search_similar_chunks
+from .search import search_chunks_any_doc, search_chunks_same_doc
 from .db_init import init_db
+from .answer import get_answer
 
 app = FastAPI()
 
@@ -25,5 +26,13 @@ async def startup_event():
 
 @app.get("/search")
 def search_endpoint(query: str = Query(...)):
-    results = search_similar_chunks(query)
+    results = search_chunks_same_doc(query)
     return [{"doc_id": r.doc_id, "chunk_id": r.chunk_id, "text": r.content} for r in results]
+
+@app.get("/answer")
+def answer_endpoint(question: str = Query(...)):
+    answer, chunks = get_answer(question)
+    return {
+        "answer": answer,
+        "sources": [{"doc_id": c.doc_id, "chunk_id": c.chunk_id, "content": c.content} for c in chunks]
+    }

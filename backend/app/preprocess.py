@@ -51,3 +51,15 @@ def clean_japanese_text(text: str) -> str:
     text = re.sub(r"\s+", " ", text)
     tokens = [word.surface for word in tagger(text) if word.feature.pos1 != "記号"]
     return " ".join(tokens)
+
+def preprocess_japanese_query(text: str) -> str:
+    """
+    Preprocess a Japanese search query using the same logic as documents:
+    - Remove whitespace
+    - Tokenize using MeCab (fugashi)
+    - Remove punctuation
+    Returns a space-separated token string.
+    """
+    text = re.sub(r"\s+", " ", text)
+    tokens = [word.surface for word in tagger(text) if word.feature.pos1 != "記号"]
+    return " ".join(tokens)

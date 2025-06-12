@@ -1,5 +1,3 @@
-# backend/app/chunking.py
-
 from typing import List
 
 
