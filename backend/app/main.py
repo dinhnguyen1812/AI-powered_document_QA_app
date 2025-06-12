@@ -5,9 +5,10 @@ from .search import search_chunks_any_doc, search_chunks_same_doc
 from .db_init import init_db
 from .answer import get_answer
 
+# Create FastAPI app instance
 app = FastAPI()
 
-# CORS
+# Enable CORS to allow requests from any origin (for frontend access)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -15,20 +16,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Run on server startup: initialize DB and generate embeddings
 @app.on_event("startup")
 async def startup_event():
     print("🔄 Initializing DB and running embedding generation...")
-    init_db()  # ensure tables exist
+    init_db()  # Ensure database schema is ready
     print("✅ Database is initialized.")
     print("🔄 Running embedding generation at startup...")
-    generate_and_save_embeddings()
+    generate_and_save_embeddings()  # Load docs, chunk, embed, and save
     print("✅ Embedding generation complete.")
 
+# Endpoint for searching relevant chunks in the same document
 @app.get("/search")
 def search_endpoint(query: str = Query(...)):
     results = search_chunks_same_doc(query)
     return [{"doc_id": r.doc_id, "chunk_id": r.chunk_id, "text": r.content} for r in results]
 
+# Endpoint for getting an AI-generated answer based on relevant chunks
 @app.get("/answer")
 def answer_endpoint(question: str = Query(...)):
     answer, chunks = get_answer(question)

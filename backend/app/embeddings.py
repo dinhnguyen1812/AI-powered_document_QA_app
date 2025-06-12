@@ -1,26 +1,35 @@
 from sqlalchemy import text
 from .chunking import chunk_text
 from .db import engine
-from .preprocess import load_documents
+from .preprocess import load_documents, tagger
 from .utils import get_embedding
 
+# Load documents, chunk them, generate embeddings, and save to the database
 def generate_and_save_embeddings():
     docs = load_documents()  # List of (filename, cleaned_text)
 
-    with engine.begin() as conn:
+    with engine.begin() as conn:  # Open a database transaction
         for idx, (filename, doc) in enumerate(docs):
-            # Insert document with real filename
+            # Insert document metadata and get generated ID
             result = conn.execute(
                 text("INSERT INTO documents (filename) VALUES (:filename) RETURNING id"),
                 {"filename": filename}
             )
             doc_id = result.scalar_one()
-            
-            tokens = doc.split()
-            chunks = chunk_text(tokens)
 
-            for chunk_idx, chunk in enumerate(chunks):
-                embedding = get_embedding(chunk)
+            # Remove all whitespace and tokenize the text (excluding symbols)
+            rejoined = "".join(doc.split())
+            tokens = [word.surface for word in tagger(rejoined) if word.feature.pos1 != "記号"]
+            chunks = chunk_text(tokens)  # Split tokens into text chunks
+
+            for chunk_idx, chunk_tokens in enumerate(chunks):
+                chunk = "".join(chunk_tokens).strip()
+                if len(chunk) < 10:  # Skip chunks that are too short
+                    continue
+                chunk = chunk.replace("　", "").replace("\n", "").replace("\u3000", "")  # Clean up
+
+                embedding = get_embedding(chunk)  # Generate vector embedding
+                # Insert chunk and embedding into the database
                 conn.execute(
                     text("""
                         INSERT INTO doc_chunks (doc_id, chunk_id, content, embedding)
@@ -34,5 +43,4 @@ def generate_and_save_embeddings():
                     }
                 )
 
-    print("✅ Saved embeddings to PostgreSQL with pgvector.")
-
+    print("✅ Cleaned and saved embeddings to PostgreSQL.")

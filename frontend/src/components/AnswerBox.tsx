@@ -3,6 +3,8 @@ import { getAnswer } from '../api/api';
 import type { AnswerResponse } from '../api/api';
 import { Button, Form, Spinner, Alert } from 'react-bootstrap';
 
+// AnswerBox component lets users submit a question, fetches an AI-generated answer with source snippets via API,
+// shows a loading spinner while waiting, and displays the answer along with referenced document excerpts.
 const AnswerBox: React.FC = () => {
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
@@ -30,7 +32,7 @@ const AnswerBox: React.FC = () => {
           type="text"
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
-          placeholder="例：このシステムはどんな目的で使われますか？"
+          placeholder="例：機械学習はどんな目的で使われていますか？"
         />
       </Form.Group>
       <Button variant="primary" className="mt-2" onClick={handleAsk} disabled={loading}>

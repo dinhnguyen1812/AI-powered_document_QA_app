@@ -1,9 +1,7 @@
 import axios from 'axios';
 
-// export interface AnswerResponse {
-//   answer: string;
-//   sources: { content: string }[];
-// }
+// API client function to send a question to the backend /answer endpoint
+// and receive the AI-generated answer along with source document excerpts.
 
 type Source = {
   content: string;

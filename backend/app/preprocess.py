@@ -1,21 +1,21 @@
 import re
+import unicodedata
 from pathlib import Path
 from typing import List, Tuple
 import pdfplumber
-
 from fugashi import Tagger
 
-# Japanese tokenizer
+# Initialize Japanese tokenizer (MeCab-based)
 tagger = Tagger()
 
-# Path to document directory
+# Regex pattern for Japanese punctuation to remove
+JAPANESE_PUNCTUATION = r"[●○◆■◇★☆●！？。、．「」〔〕（）『』［］｛｝【】〈〉《》≪≫“”‘’・：；…／＼〜～–—ー‐\-\(\)\[\]{}<>@#$%^&*_+=|~`\"'.,!?]"
+
+# Directory path where document files are stored
 DOCS_DIR = Path(__file__).resolve().parent.parent / "data" / "docs"
 
 def load_documents() -> List[Tuple[str, str]]:
-    """
-    Load and preprocess all documents (TXT or PDF) from the docs directory.
-    Returns a list of tuples: (filename, cleaned_text).
-    """
+    # Load and clean all .txt and .pdf documents from DOCS_DIR
     documents = []
     for filepath in DOCS_DIR.iterdir():
         if filepath.suffix == ".txt":
@@ -25,27 +25,62 @@ def load_documents() -> List[Tuple[str, str]]:
         else:
             continue
 
-        cleaned = preprocess_japanese_query(text)
-        documents.append((filepath.name, cleaned))  # Return filename and cleaned text
+        cleaned = clean_japanese_text(text)
+
+        # Filter out noisy or low-quality chunks
+        if is_valid_chunk(cleaned):
+            documents.append((filepath.name, cleaned))
     return documents
 
-
 def extract_text_from_pdf(path: Path) -> str:
-    """
-    Extract raw text from all pages of a PDF file using pdfplumber.
-    Returns the combined text as a string.
-    """
+    # Extract and concatenate all text from each page of the PDF
     with pdfplumber.open(str(path)) as pdf:
         return "\n".join(page.extract_text() or "" for page in pdf.pages)
 
-def preprocess_japanese_query(text: str) -> str:
-    """
-    Preprocess a Japanese search query using the same logic as documents:
-    - Remove whitespace
-    - Tokenize using MeCab (fugashi)
-    - Remove punctuation
-    Returns a space-separated token string.
-    """
-    text = re.sub(r"\s+", " ", text)
+def clean_japanese_text(text: str) -> str:
+    # Normalize Unicode characters (e.g. full-width to half-width)
+    text = unicodedata.normalize("NFKC", text)
+
+    # Remove metadata-like patterns and unwanted tokens
+    text = re.sub(r"[a-zA-Z]{4,}", "", text)
+    text = re.sub(r"[/:\d]{4,}", "", text)
+    text = re.sub(r"cid[\w]*", "", text)
+    text = re.sub(r"cid\s*:\s*\d+", "", text)
+
+    # Remove all whitespace characters (including full-width spaces)
+    text = re.sub(r"[ \u3000\n\r\t]+", "", text)
+
+    # Remove Japanese punctuation marks
+    text = re.sub(JAPANESE_PUNCTUATION, "", text)
+
+    # Deduplicate consecutive kana/kanji characters (e.g., 循循 → 循)
+    text = re.sub(r'([ぁ-んァ-ン一-龯々])\1+', r'\1', text)
+
+    # Tokenize text and remove symbol tokens (記号)
     tokens = [word.surface for word in tagger(text) if word.feature.pos1 != "記号"]
-    return " ".join(tokens)
+
+    return "".join(tokens)
+
+def is_valid_chunk(text: str) -> bool:
+    # Check if chunk contains too many junk tokens and discard if so
+    tokens = re.findall(r'\w+', text)
+    if not tokens:
+        return False
+
+    junk_tokens = [t for t in tokens if re.fullmatch(r"(cid|\d+|歳|年|資料|統計|推計)", t)]
+    junk_ratio = len(junk_tokens) / len(tokens)
+
+    return junk_ratio < 0.3  # Valid if less than 30% junk tokens
+
+def preprocess_japanese_query(query: str) -> str:
+    # Clean and normalize input query text for consistent searching
+    text = unicodedata.normalize("NFKC", query)
+    text = re.sub(r"[a-zA-Z]{4,}", "", text)
+    text = re.sub(r"[/:\d]{4,}", "", text)
+    text = re.sub(r"cid[\w]*", "", text)
+    text = re.sub(r"cid\s*:\s*\d+", "", text)
+    text = re.sub(r"[ \u3000\n\r\t]+", "", text)
+    text = re.sub(JAPANESE_PUNCTUATION, "", text)
+    text = re.sub(r'([ぁ-んァ-ン一-龯々])\1+', r'\1', text)
+    tokens = [word.surface for word in tagger(text) if word.feature.pos1 != "記号"]
+    return "".join(tokens)

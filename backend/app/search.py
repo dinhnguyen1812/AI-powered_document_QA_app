@@ -4,6 +4,7 @@ from .preprocess import preprocess_japanese_query
 from .utils import get_embedding
 
 def search_chunks_any_doc(query: str, top_k: int = 3):
+    # Search for top_k most similar chunks across all documents using vector similarity
     clean_query = preprocess_japanese_query(query)
     query_embedding = get_embedding(clean_query)
 
@@ -21,10 +22,12 @@ def search_chunks_any_doc(query: str, top_k: int = 3):
         return result.fetchall()
 
 def search_chunks_same_doc(query: str, top_k: int = 3):
+    # Find the best matching document for the query, then return top_k similar chunks within that document
     clean_query = preprocess_japanese_query(query)
     query_embedding = get_embedding(clean_query)
 
     with engine.connect() as conn:
+        # Identify document with closest chunks to query embedding
         best_doc = conn.execute(
             text("""
                 WITH top_chunks AS (
@@ -47,6 +50,7 @@ def search_chunks_same_doc(query: str, top_k: int = 3):
 
         doc_id = best_doc.doc_id
 
+        # Fetch top_k closest chunks from the identified document
         result = conn.execute(
             text("""
                 SELECT c.content, c.doc_id, c.chunk_id, d.filename
