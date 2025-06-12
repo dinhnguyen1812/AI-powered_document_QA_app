@@ -6,3 +6,5 @@ fugashi
 unidic-lite
 pdfplumber
 openai
+psycopg2-binary
+sqlalchemy
