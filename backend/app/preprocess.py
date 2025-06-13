@@ -26,10 +26,7 @@ def load_documents() -> List[Tuple[str, str]]:
             continue
 
         cleaned = clean_japanese_text(text)
-
-        # Filter out noisy or low-quality chunks
-        if is_valid_chunk(cleaned):
-            documents.append((filepath.name, cleaned))
+        documents.append((filepath.name, cleaned))
     return documents
 
 def extract_text_from_pdf(path: Path) -> str:
@@ -60,17 +57,6 @@ def clean_japanese_text(text: str) -> str:
     tokens = [word.surface for word in tagger(text) if word.feature.pos1 != "記号"]
 
     return "".join(tokens)
-
-def is_valid_chunk(text: str) -> bool:
-    # Check if chunk contains too many junk tokens and discard if so
-    tokens = re.findall(r'\w+', text)
-    if not tokens:
-        return False
-
-    junk_tokens = [t for t in tokens if re.fullmatch(r"(cid|\d+|歳|年|資料|統計|推計)", t)]
-    junk_ratio = len(junk_tokens) / len(tokens)
-
-    return junk_ratio < 0.3  # Valid if less than 30% junk tokens
 
 def preprocess_japanese_query(query: str) -> str:
     # Clean and normalize input query text for consistent searching

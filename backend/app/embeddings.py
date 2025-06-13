@@ -44,3 +44,14 @@ def generate_and_save_embeddings():
                 )
 
     print("✅ Cleaned and saved embeddings to PostgreSQL.")
+
+def is_valid_chunk(text: str) -> bool:
+    # Check if chunk contains too many junk tokens and discard if so
+    tokens = re.findall(r'\w+', text)
+    if not tokens:
+        return False
+
+    junk_tokens = [t for t in tokens if re.fullmatch(r"(cid|\d+)", t)]
+    junk_ratio = len(junk_tokens) / len(tokens)
+
+    return junk_ratio < 0.3  # Valid if less than 30% junk tokens

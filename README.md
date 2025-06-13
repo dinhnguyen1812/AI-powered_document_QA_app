@@ -6,7 +6,6 @@ This is a prototype web application that helps users search and understand docum
 
 ## 🚀 Features
 
-- Upload and parse Japanese PDF documents
 - Preprocess and split documents into chunks
 - Embed document chunks using OpenAI Embeddings and store in PostgreSQL + pgvector
 - Perform similarity search based on user question
@@ -80,7 +79,22 @@ docker compose up --build -d
 - Backend: http://localhost:8001
 - Frontend: http://localhost:5173
 
-### 🛠️ Development Stages
+## 🚀 Deployments
+
+### 1. 🔗 Frontend
+The React frontend is deployed on Render:
+
+**URL:** [https://ai-powered-document-qa-app-frontend.onrender.com/](https://ai-powered-document-qa-app-frontend.onrender.com/)
+
+### 2. 🔗 Backend
+The FastAPI backend is deployed on Render:
+
+**URL:** [https://ai-poswered-document-qa-app.onrender.com/docs](https://ai-poswered-document-qa-app.onrender.com/docs)
+
+### 3. 🗃️ Database
+PostgreSQL with pgvector is hosted on Supabase
+
+## 🛠️ Development Stages
 | Stage                         | Description                                                                 |
 |------------------------------|-----------------------------------------------------------------------------|
 | 🔧 Initial Setup              | Set up project structure, Docker, FastAPI backend, and React+TypeScript UI |
@@ -91,7 +105,7 @@ docker compose up --build -d
 | ✍️ LLM-based Summarization    | Created `/answer` endpoint to summarize search results with LLM            |
 | 🖥️ Frontend Integration       | Implemented UI with React + Bootstrap for query input and result display   |
 
-### 🧠 How it Works
+## 🧠 How it Works
 - User inputs a natural language question in Japanese.
 - The system generates an embedding for the question using OpenAI Embeddings.
 - It searches the vector database for the most similar document chunks.

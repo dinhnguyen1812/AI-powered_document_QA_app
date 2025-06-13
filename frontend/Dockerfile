@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -9,6 +9,13 @@ RUN npm install axios @types/axios
 COPY . .
 RUN npm run build
 
-EXPOSE 5173
-CMD ["npm", "run", "dev", "--", "--host"]
+FROM node:18-alpine
+
+WORKDIR /app
+RUN npm install -g serve
+
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 3000
+CMD ["serve", "-s", "dist", "-l", "3000"]
 
