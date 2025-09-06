@@ -1,6 +1,6 @@
 from sqlalchemy import text
 from .db import engine
-
+from .embeddings import generate_and_save_embeddings
 # Initialize the database: create required extensions and tables if they don't exist
 def init_db():
     with engine.begin() as conn:  # begin() creates a transaction and auto-commits on success
@@ -25,3 +25,12 @@ def init_db():
                 embedding VECTOR(1536)
             );
         """))
+
+if __name__ == "__main__":
+    print("🔄 Initializing DB...")
+    init_db()
+    print("✅ DB initialized")
+
+    print("🔄 Generating embeddings...")
+    generate_and_save_embeddings()
+    print("✅ Embeddings generated")

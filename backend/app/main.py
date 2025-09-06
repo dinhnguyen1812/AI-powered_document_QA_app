@@ -16,15 +16,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Run on server startup: initialize DB and generate embeddings
-@app.on_event("startup")
-async def startup_event():
-    print("🔄 Initializing DB and running embedding generation...")
-    init_db()  # Ensure database schema is ready
-    print("✅ Database is initialized.")
-    print("🔄 Running embedding generation at startup...")
-    generate_and_save_embeddings()  # Load docs, chunk, embed, and save
-    print("✅ Embedding generation complete.")
+# # Run on server startup: initialize DB and generate embeddings
+# @app.on_event("startup")
+# async def startup_event():
+#     print("🔄 Initializing DB and running embedding generation...")
+#     init_db()  # Ensure database schema is ready
+#     print("✅ Database is initialized.")
+#     print("🔄 Running embedding generation at startup...")
+#     generate_and_save_embeddings()  # Load docs, chunk, embed, and save
+#     print("✅ Embedding generation complete.")
 
 # Endpoint for searching relevant chunks in the same document
 @app.get("/search")

@@ -79,15 +79,20 @@ docker compose up --build -d
 - Backend: http://localhost:8001
 - Frontend: http://localhost:5173
 
+### 4. Initialize the database
+```
+docker compose exec backend python -m app.db_init
+```
+
 ## 🚀 Deployments
 
 ### 1. 🔗 Frontend
-The React frontend is deployed on Render:
+The React frontend is deployed on Render (inactivated):
 
 **URL:** [https://ai-powered-document-qa-app-frontend.onrender.com/](https://ai-powered-document-qa-app-frontend.onrender.com/)
 
 ### 2. 🔗 Backend
-The FastAPI backend is deployed on Render:
+The FastAPI backend is deployed on Render (inactivated):
 
 **URL:** [https://ai-poswered-document-qa-app.onrender.com/docs](https://ai-poswered-document-qa-app.onrender.com/docs)
 
@@ -112,6 +117,9 @@ PostgreSQL with pgvector is hosted on Supabase
 - It builds a prompt with the context and sends it to the OpenAI GPT API.
 - GPT returns a concise answer in Japanese.
 - The frontend displays the answer and referenced document excerpts.
+
+## 🖥️ UI Preview
+<img src="images/question_answer.png" alt="Register Page" style="border: 2px solid black;"/>
 
 ### ✅ Key Implementation Highlights
 - Japanese Text Processing: Used fugashi to tokenize Japanese text accurately.

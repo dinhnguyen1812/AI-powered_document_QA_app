@@ -9,7 +9,8 @@ def chunk_text(tokens: List[str], chunk_size: int = 200, overlap: int = 20) -> L
     chunks = []
     for i in range(0, len(tokens), chunk_size - overlap):
         chunk = tokens[i:i + chunk_size]
-        if chunk:
-            chunks.append(" ".join(chunk))
+        # if chunk:
+        #     chunks.append(" ".join(chunk))
+        chunks.append(chunk)
     return chunks
 

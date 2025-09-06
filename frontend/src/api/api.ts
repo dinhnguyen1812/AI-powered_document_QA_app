@@ -13,8 +13,8 @@ export type AnswerResponse = {
   sources: Source[];
 };
 
-// const API_BASE_URL = 'http://localhost:8001';
-const API_BASE_URL = 'https://ai-poswered-document-qa-app.onrender.com';
+const API_BASE_URL = 'http://localhost:8001';
+// const API_BASE_URL = 'https://ai-poswered-document-qa-app.onrender.com';
 
 export const getAnswer = async (question: string): Promise<AnswerResponse> => {
   const response = await axios.get(`${API_BASE_URL}/answer`, {

@@ -9,7 +9,7 @@ from fugashi import Tagger
 tagger = Tagger()
 
 # Regex pattern for Japanese punctuation to remove
-JAPANESE_PUNCTUATION = r"[●○◆■◇★☆●！？。、．「」〔〕（）『』［］｛｝【】〈〉《》≪≫“”‘’・：；…／＼〜～–—ー‐\-\(\)\[\]{}<>@#$%^&*_+=|~`\"'.,!?]"
+JAPANESE_PUNCTUATION = r"[　●○◆■◇★☆●！？。、．「」〔〕（）『』［］｛｝【】〈〉《》≪≫“”‘’・：；…／＼〜～–—ー‐\-\(\)\[\]{}<>@#$%^&*_+=|~`\"'.,!?]"
 
 # Directory path where document files are stored
 DOCS_DIR = Path(__file__).resolve().parent.parent / "data" / "docs"
@@ -44,6 +44,9 @@ def clean_japanese_text(text: str) -> str:
     text = re.sub(r"cid[\w]*", "", text)
     text = re.sub(r"cid\s*:\s*\d+", "", text)
 
+    # 🚑 Remove pdfminer junk like Pa43, Pb12, etc.
+    text = re.sub(r"[A-Za-z]{1,3}\d{1,4}", "", text)
+
     # Remove all whitespace characters (including full-width spaces)
     text = re.sub(r"[ \u3000\n\r\t]+", "", text)
 
@@ -56,7 +59,8 @@ def clean_japanese_text(text: str) -> str:
     # Tokenize text and remove symbol tokens (記号)
     tokens = [word.surface for word in tagger(text) if word.feature.pos1 != "記号"]
 
-    return "".join(tokens)
+    # return "".join(tokens)
+    return tokens
 
 def preprocess_japanese_query(query: str) -> str:
     # Clean and normalize input query text for consistent searching

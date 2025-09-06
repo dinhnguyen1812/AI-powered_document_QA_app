@@ -18,15 +18,16 @@ def generate_and_save_embeddings():
             doc_id = result.scalar_one()
 
             # Remove all whitespace and tokenize the text (excluding symbols)
-            rejoined = "".join(doc.split())
-            tokens = [word.surface for word in tagger(rejoined) if word.feature.pos1 != "記号"]
-            chunks = chunk_text(tokens)  # Split tokens into text chunks
+            # rejoined = "".join(doc.split())
+            # tokens = [word.surface for word in tagger(rejoined) if word.feature.pos1 != "記号"]
+            # chunks = chunk_text(tokens)  # Split tokens into text chunks
+            chunks = chunk_text(doc)
 
             for chunk_idx, chunk_tokens in enumerate(chunks):
                 chunk = "".join(chunk_tokens).strip()
                 if len(chunk) < 10:  # Skip chunks that are too short
                     continue
-                chunk = chunk.replace("　", "").replace("\n", "").replace("\u3000", "")  # Clean up
+                # chunk = chunk.replace("　", "").replace("\n", "").replace("\u3000", "")  # Clean up
 
                 embedding = get_embedding(chunk)  # Generate vector embedding
                 # Insert chunk and embedding into the database
@@ -45,7 +46,9 @@ def generate_and_save_embeddings():
 
     print("✅ Cleaned and saved embeddings to PostgreSQL.")
 
+# Not used this time
 def is_valid_chunk(text: str) -> bool:
+    import re
     # Check if chunk contains too many junk tokens and discard if so
     tokens = re.findall(r'\w+', text)
     if not tokens:
